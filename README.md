@@ -27,10 +27,13 @@ Make sure you have the following installed:
 ### ⚙️ Installation
 Step-by-step guide to set up the project:
 
-1. **Clone the repository**
-   ```bash
-   git clone <REPOSITORY_URL>
-   cd MatrixGame
+1) Clone the repository
+
+```
+git clone <REPOSITORY_URL>
+cd MatrixGame
+```
+
 
 
 2) Compile the Java classes.
@@ -48,14 +51,14 @@ java -cp src/domain MatrixGame
 Example output (board):
 
 ```
-|N| | | | | | | |
-| | | | | | | |A|
-|W| | | | | | | |
-| | | |A| | | | |
-| | | | | | |W| |
-| | | | | |A| |W|
-| | | | | | | | |
-| | | | | | | |T|
+| N |   |   |   |   |   |   |   |
+|   |   |   |   |   |   |   | A |
+| W |   |   |   |   |   |   |   |
+|   |   |   | A |   |   |   |   |
+|   |   |   |   |   |   | W |   |
+|   |   |   |   |   | A |   | W |
+|   |   |   |   |   |   |   |   |
+|   |   |   |   |   |   |   | T |
 ```
 
 ## Built With
