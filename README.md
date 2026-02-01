@@ -48,10 +48,10 @@ java -cp src/domain MatrixGame
 Example output (board):
 
 ```
-|N|W| | | | | | |
-|W| | | | | | |A|
+|N| | | | | | | |
+| | | | | | | |A|
 |W| | | | | | | |
-| | | | | | | | |
+| | | |A| | | | |
 | | | | | | |W| |
 | | | | | |A| |W|
 | | | | | | | | |
