@@ -1,131 +1,183 @@
 package domain;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class Board {
 
-    private int width;
-    private int height;
+    private final int width;
+    private final int height;
     private Neo neo;
     private Telephone telephone;
-    private List<Agent> agents;
-    private List<Wall> walls;
-    private Random random = new Random();
+    private final List<Agent> agents = new ArrayList<>();
+    private final List<Wall> walls = new ArrayList<>();
+    
+
 
     public Board(int width, int height) {
         this.width = width;
         this.height = height;
-        this.agents = new ArrayList<>();
-        this.walls = new ArrayList<>();
     }
 
-    public void setNeo(Neo neo) {
+    public synchronized void setNeo(Neo neo) {
         this.neo = neo;
     }
 
-    public void setTelephone(Telephone telephone) {
+    public synchronized void setTelephone(Telephone telephone) {
         this.telephone = telephone;
     }
 
-    public void addAgent(Agent agent) {
+    public synchronized void addAgent(Agent agent) {
         agents.add(agent);
     }
 
-    public void addWall(Wall wall) {
+    public synchronized void addWall(Wall wall) {
         walls.add(wall);
     }
 
-    public synchronized void moveNeo() {
-        int[] move = randomMoves();
-        int newX = neo.getxPosition() + move[0];
-        int newY = neo.getyPosition() + move[1];
-
-        if (isValidPosition(newX, newY) && !isWallAt(newX, newY)) {
-            neo.setxPosition(newX);
-            neo.setyPosition(newY);
-            System.out.println("Neo se movió a (" + newX + "," + newY + ")");
-        }
-    }
-
-    public synchronized void moveAgent(Agent agent) {
-        int[] move = randomMoves();
-        int newX = agent.getxPosition() + move[0];
-        int newY = agent.getyPosition() + move[1];
-
-        if (isValidPosition(newX, newY) && !isWallAt(newX, newY)) {
-            agent.setxPosition(newX);
-            agent.setyPosition(newY);
-            System.out.println("Agente se movió a (" + newX + "," + newY + ")");
-        }
-    }
-
-    private int[] randomMoves() {
-        return switch (random.nextInt(4)) {
-            case 0 -> new int[]{0, -1};
-            case 1 -> new int[]{1, 0};
-            case 2 -> new int[]{0, 1};
-            default -> new int[]{-1, 0};
-        };
-    }
 
     public synchronized boolean neoEscaped() {
         return neo.getxPosition() == telephone.getxPosition()
-                && neo.getyPosition() == telephone.getyPosition();
+            && neo.getyPosition() == telephone.getyPosition();
     }
 
     public synchronized boolean neoCaptured() {
-        for (Agent agent : agents) {
-            if (agent.getxPosition() == neo.getxPosition()
-                    && agent.getyPosition() == neo.getyPosition()) {
+        for (Agent a : agents) {
+            if (a.getxPosition() == neo.getxPosition()
+             && a.getyPosition() == neo.getyPosition()) {
                 return true;
             }
         }
         return false;
     }
 
+    public synchronized boolean isGameOver() {
+        return neoEscaped() || neoCaptured();
+    }
 
-    private boolean isValidPosition(int x, int y) {
+
+    public synchronized boolean moveNeo(int newX, int newY) {
+    if (!isValid(newX, newY) || isWall(newX, newY)) return false;
+
+    for (Agent a : agents) {
+        if (a.getxPosition() == newX && a.getyPosition() == newY) {
+            return false;
+        }
+    }
+    neo.setxPosition(newX);
+    neo.setyPosition(newY);
+    return true;
+}
+
+
+    public synchronized boolean moveAgent(Agent agent, int newX, int newY) {
+    if (!isValid(newX, newY) || isWall(newX, newY)) return false;
+
+    for (Agent a : agents) {
+        if (a != agent &&
+            a.getxPosition() == newX &&
+            a.getyPosition() == newY) {
+            return false;
+        }
+    }
+
+    agent.setxPosition(newX);
+    agent.setyPosition(newY);
+    return true;
+    }
+
+
+
+    public int[] bfs(int sx, int sy, int gx, int gy) {
+
+        boolean[][] visited = new boolean[height][width];
+        int[][] parentX = new int[height][width];
+        int[][] parentY = new int[height][width];
+
+        Queue<int[]> queue = new LinkedList<>();
+        queue.add(new int[]{sx, sy});
+        visited[sy][sx] = true;
+
+        while (!queue.isEmpty()) {
+            int[] c = queue.poll();
+            int x = c[0], y = c[1];
+
+            if (x == gx && y == gy) break;
+
+            for (int[] n : neighbors(x, y)) {
+                int nx = n[0], ny = n[1];
+                if (!visited[ny][nx] && !isWall(nx, ny)) {
+                    visited[ny][nx] = true;
+                    parentX[ny][nx] = x;
+                    parentY[ny][nx] = y;
+                    queue.add(new int[]{nx, ny});
+                }
+            }
+        }
+
+        if (!visited[gy][gx]) return new int[]{sx, sy};
+
+        int x = gx, y = gy;
+        while (!(parentX[y][x] == sx && parentY[y][x] == sy)) {
+            int px = parentX[y][x];
+            int py = parentY[y][x];
+            x = px;
+            y = py;
+        }
+
+        return new int[]{x, y};
+    }
+
+    private List<int[]> neighbors(int x, int y) {
+        int[][] d = {{1,0},{-1,0},{0,1},{0,-1}};
+        List<int[]> list = new ArrayList<>();
+        for (int[] v : d) {
+            int nx = x + v[0];
+            int ny = y + v[1];
+            if (isValid(nx, ny)) list.add(new int[]{nx, ny});
+        }
+        return list;
+    }
+
+
+    public synchronized int getNeoX() { return neo.getxPosition(); }
+    public synchronized int getNeoY() { return neo.getyPosition(); }
+    public synchronized int getTelephoneX() { return telephone.getxPosition(); }
+    public synchronized int getTelephoneY() { return telephone.getyPosition(); }
+
+
+    private boolean isValid(int x, int y) {
         return x >= 0 && x < width && y >= 0 && y < height;
     }
 
-    private boolean isWallAt(int x, int y) {
-        for (Wall wall : walls) {
-            if (wall.getxPosition() == x && wall.getyPosition() == y) {
-                return true;
-            }
+    private boolean isWall(int x, int y) {
+        for (Wall w : walls) {
+            if (w.getxPosition() == x && w.getyPosition() == y) return true;
         }
         return false;
     }
 
+
     public synchronized void printBoard() {
-        String[][] matrixBoard = new String[height][width];
 
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
-                matrixBoard[i][j] = " ";
-            }
-        }
+        String[][] m = new String[height][width];
+        for (int i = 0; i < height; i++) Arrays.fill(m[i], " ");
 
-        for (Wall wall : walls) {
-            matrixBoard[wall.getyPosition()][wall.getxPosition()] = "W";
-        }
+        for (Wall w : walls) m[w.getyPosition()][w.getxPosition()] = "W";
+        m[telephone.getyPosition()][telephone.getxPosition()] = "T";
 
-        for (Agent agent : agents) {
-            matrixBoard[agent.getyPosition()][agent.getxPosition()] = "A";
-        }
+        for (Agent a : agents) m[a.getyPosition()][a.getxPosition()] = "A";
 
-        matrixBoard[telephone.getyPosition()][telephone.getxPosition()] = "T";
-        matrixBoard[neo.getyPosition()][neo.getxPosition()] = "N";
+        if (neoCaptured()) m[neo.getyPosition()][neo.getxPosition()] = "X";
+        else m[neo.getyPosition()][neo.getxPosition()] = "N";
 
         System.out.println();
         for (int i = 0; i < height; i++) {
             System.out.print("|");
             for (int j = 0; j < width; j++) {
-                System.out.print(" " + matrixBoard[i][j] + " |");
+                System.out.print(" " + m[i][j] + " |");
             }
             System.out.println();
         }
+
     }
 }
