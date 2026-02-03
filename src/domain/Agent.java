@@ -1,9 +1,7 @@
 package domain;
 
 public class Agent extends Thread {
-
-    private int xPosition;
-    private int yPosition;
+    private int xPosition, yPosition;
     private final Board board;
 
     public Agent(Board board, int x, int y) {
@@ -12,32 +10,19 @@ public class Agent extends Thread {
         this.yPosition = y;
     }
 
-   
     @Override
     public void run() {
-        try {
-            while (!board.isGameOver()) {
+        int oldX = xPosition;
+        int oldY = yPosition;
 
-                int oldX = xPosition;
-                int oldY = yPosition;
+        int[] next = board.bfs(xPosition, yPosition, board.getNeoX(), board.getNeoY());
 
-                int[] next = board.bfs(
-                    xPosition, yPosition,
-                    board.getNeoX(), board.getNeoY()
-                );
-
-                if (board.moveAgent(this, next[0], next[1])) {
-                    System.out.println(
-                        "Agente: (" + oldX + "," + oldY +
-                        ") -> (" + next[0] + "," + next[1] + ")"
-                    );
-                }
-
-                Thread.sleep(750);
-            }
-        } catch (InterruptedException e) {}
+        if (board.moveAgent(this, next[0], next[1])) {
+            this.xPosition = next[0];
+            this.yPosition = next[1];
+            System.out.println("Agente " + " se movió: (" + oldX + "," + oldY + ") -> (" + xPosition + "," + yPosition + ")");
+        }
     }
-
 
     public int getxPosition() { 
         return xPosition; 

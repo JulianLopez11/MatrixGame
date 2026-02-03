@@ -1,9 +1,7 @@
 package domain;
 
 public class Neo extends Thread {
-
-    private int xPosition;
-    private int yPosition;
+    private int xPosition, yPosition;
     private final Board board;
 
     public Neo(Board board, int x, int y) {
@@ -14,35 +12,24 @@ public class Neo extends Thread {
 
     @Override
     public void run() {
-        try {
-            while (!board.isGameOver()) {
+        int oldX = xPosition;
+        int oldY = yPosition;
 
-                int oldX = xPosition;
-                int oldY = yPosition;
+        int[] next = board.bfs(xPosition, yPosition, board.getTelephoneX(), board.getTelephoneY());
 
-                int[] next = board.bfs(
-                    xPosition, yPosition,
-                    board.getTelephoneX(), board.getTelephoneY()
-                );
-
-                if (board.moveNeo(next[0], next[1])) {
-                    System.out.println(
-                        "Neo: (" + oldX + "," + oldY + 
-                        ") -> (" + next[0] + "," + next[1] + ")"
-                    );
-                }
-
-                Thread.sleep(600);
-            }
-        } catch (InterruptedException e) {}
+        if (board.moveNeo(next[0], next[1])) {
+            this.xPosition = next[0];
+            this.yPosition = next[1];
+            System.out.println("Neo se movió: (" + oldX + "," + oldY + ") -> (" + xPosition + "," + yPosition + ")");
+        }
     }
-
 
     public int getxPosition() { 
         return xPosition; 
     }
     public int getyPosition() { 
         return yPosition; 
+    
     }
     public void setxPosition(int x) { 
         xPosition = x; 

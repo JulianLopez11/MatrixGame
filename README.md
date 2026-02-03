@@ -13,6 +13,12 @@ The simulation ends when:
 
 ---
 
+## Class Diagram 
+
+![alt text](src/docs/image.png)
+
+---
+
 ## 🚀 Getting Started
 Follow these instructions to run the project locally for development or testing purposes.
 
@@ -51,6 +57,11 @@ java -cp src/domain MatrixGame
 Example output (board):
 
 ```
+Neo se movió: (0,0) -> (1,0)
+Agente  se movió: (2,2) -> (1,2)
+Agente  se movió: (4,3) -> (4,2)
+Agente  se movió: (5,5) -> (4,5)
+
 | N |   |   |   |   |   |   |   |
 |   |   |   |   |   |   |   | A |
 | W |   |   |   |   |   |   |   |

@@ -139,11 +139,18 @@ public class Board {
     }
 
 
-    public synchronized int getNeoX() { return neo.getxPosition(); }
-    public synchronized int getNeoY() { return neo.getyPosition(); }
-    public synchronized int getTelephoneX() { return telephone.getxPosition(); }
-    public synchronized int getTelephoneY() { return telephone.getyPosition(); }
-
+    public synchronized int getNeoX() { 
+        return neo.getxPosition(); 
+    }
+    public synchronized int getNeoY() { 
+        return neo.getyPosition(); 
+    }
+    public synchronized int getTelephoneX() { 
+        return telephone.getxPosition(); 
+    }
+    public synchronized int getTelephoneY() { 
+        return telephone.getyPosition(); 
+    }
 
     private boolean isValid(int x, int y) {
         return x >= 0 && x < width && y >= 0 && y < height;
@@ -156,7 +163,9 @@ public class Board {
         return false;
     }
 
-
+    public synchronized List<Agent> getAgents() {
+        return agents;
+    }
     public synchronized void printBoard() {
 
         String[][] m = new String[height][width];
